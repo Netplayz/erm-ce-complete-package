@@ -1,33 +1,43 @@
-num2words~=0.5.13
+# Core Frameworks
 git+https://github.com/Rapptz/discord.py
-motor~=3.6.0
-python-dateutil~=2.8.2
-pytz~=2024.1
-python-decouple
-snowflake-id
-requests
-aiohttp~=3.10.10
-sentry_sdk
-roblox~=2.0.0
-zuid~=0.1.1
-pytest
-typing_extensions
-reactionmenu~=3.1.3
-jishaku~=2.6.0
-oauth2client~=4.1.3
-gspread~=5.10.0
-sentry_sdk[pymongo]
-uvicorn~=0.30.6
 fastapi~=0.112.2
-aiohttp-cors
+uvicorn~=0.30.6
+
+# Database & Models
+motor~=3.6.0
 pymongo~=4.16.0
 pydantic~=2.8.2
+gspread~=5.10.0
 gspread_asyncio
-fuzzywuzzy
-python-Levenshtein
-newrelic
+
+# Utilities & Scaling
+snowflake-id
+zuid~=0.1.1
+python-decouple
+python-dateutil~=2.8.2
+pytz~=2024.1
+num2words~=0.5.13
+psutil~=5.9.0
+
+# Networking & API
+requests
+aiohttp~=3.10.10
+aiohttp-cors
+roblox~=2.0.0
+oauth2client~=4.1.3
+
+# Search & Security
+rapidfuzz             # Modern replacement for fuzzywuzzy
 pycryptodome
+
+# Extensions & Debugging
+jishaku~=2.6.0
+reactionmenu~=3.1.3
+sentry_sdk[pymongo]
+newrelic
 nest_asyncio
 
-psutil~=5.9.0
+# Testing
+pytest
 pytest-asyncio~=0.21.0
+typing_extensions
