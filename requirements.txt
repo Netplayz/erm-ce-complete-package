@@ -1,16 +1,25 @@
-# Core Frameworks
+# Discord & Frameworks
 git+https://github.com/Rapptz/discord.py
 fastapi
 uvicorn
 
-# Database & Models
+# Database & Async Drivers
 motor
 pymongo
 pydantic
 gspread
 gspread_asyncio
+aiohttp
+aiohttp-cors
 
-# Utilities & Scaling
+# Roblox & Third-Party APIs
+roblox
+requests
+oauth2client
+sentry_sdk[pymongo]
+newrelic
+
+# Logic & Utilities
 snowflake-id
 zuid
 python-decouple
@@ -18,26 +27,18 @@ python-dateutil
 pytz
 num2words
 psutil
+nest_asyncio
+typing_extensions
 
-# Networking & API
-requests
-aiohttp
-aiohttp-cors
-roblox
-oauth2client
-
-# Search & Security
-rapidfuzz
+# Search & String Matching
+fuzzywuzzy
+python-Levenshtein
 pycryptodome
 
-# Extensions & Debugging
+# Bot Extensions
 jishaku
 reactionmenu
-sentry_sdk[pymongo]
-newrelic
-nest_asyncio
 
 # Testing
 pytest
 pytest-asyncio
-typing_extensions
