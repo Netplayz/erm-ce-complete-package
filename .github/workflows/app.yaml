@@ -1,0 +1,184 @@
+name: PyTest and Code Quality
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Full clone for proper git operations
+      
+      # Setup Python
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+          cache: 'pip'  # Cache pip dependencies for faster builds
+      
+      # Install system dependencies
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git
+      
+      # Upgrade pip
+      - name: Upgrade pip
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+      
+      # Install test dependencies first (lightweight)
+      - name: Install test dependencies
+        run: |
+          pip install pytest pytest-asyncio pytest-cov
+          pip install flake8 flake8-docstrings flake8-bugbear
+      
+      # Install project dependencies
+      - name: Install project dependencies
+        run: |
+          pip install -r requirements.txt
+        env:
+          # Prevent interactive prompts
+          PIP_NO_INPUT: "1"
+      
+      # Run Flake8 with proper configuration
+      - name: Lint with Flake8
+        run: |
+          # Stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # Exit-zero treats all errors as warnings. GitHub editor is 127 chars wide
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics \
+            --exclude=.git,__pycache__,venv,env,.venv,.pytest_cache,.github,build,dist
+        continue-on-error: true
+      
+      # Check for common issues
+      - name: Check for debug statements
+        run: |
+          echo "Checking for debug print statements..."
+          ! grep -r "print(" --include="*.py" cogs/ events/ tasks/ utils/ || echo "Warning: Found print statements"
+        continue-on-error: true
+      
+      # Run tests with coverage
+      - name: Run test suite
+        env:
+          # Required environment variables for bot initialization
+          ENVIRONMENT: "DEVELOPMENT"
+          MONGO_URL: "mongodb://localhost:27017/test"
+          
+          # Bot tokens (placeholder values for testing)
+          PRODUCTION_BOT_TOKEN: "test_token_placeholder_prod"
+          DEVELOPMENT_BOT_TOKEN: "test_token_placeholder_dev"
+          ALPHA_BOT_TOKEN: "test_token_placeholder_alpha"
+          
+          # API Keys (placeholder values)
+          SENTRY_URL: ""
+          BLOXLINK_API_KEY: "test_bloxlink_key"
+          PRC_API_KEY: "test_prc_key"
+          PRC_API_URL: "https://api.example.com"
+          MC_API_KEY: ""
+          MC_API_URL: ""
+          
+          # WebGUI Settings
+          WEBGUI_HOST: "127.0.0.1"
+          WEBGUI_PORT: "8080"
+          
+          # Google Sheets API (not needed for tests)
+          TYPE: ""
+          PROJECT_ID: ""
+          PRIVATE_KEY_ID: ""
+          PRIVATE_KEY: ""
+          CLIENT_EMAIL: ""
+          CLIENT_ID: ""
+          AUTH_URI: ""
+          TOKEN_URI: ""
+          AUTH_PROVIDER_X509_CERT_URL: ""
+          CLIENT_X509_CERT_URL: ""
+          
+          # AI API
+          API_URL: ""
+          API_AUTH: ""
+          AI_API_ENABLED: "FALSE"
+          
+          # Other settings
+          CUSTOM_GUILD_ID: "0"
+          DUTY_LEADERBOARD_ID: ""
+          ACTIVITY_REPORT_ID: ""
+        run: |
+          pytest -v --cov=. --cov-report=term-missing --cov-report=xml
+        continue-on-error: false
+      
+      # Upload coverage to codecov (optional)
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        if: always()
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+        continue-on-error: true
+      
+      # Check for security vulnerabilities
+      - name: Security check with Safety
+        run: |
+          pip install safety
+          safety check --json || echo "Security check completed with warnings"
+        continue-on-error: true
+      
+      # Summary
+      - name: Test Summary
+        if: always()
+        run: |
+          echo "## Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Tests completed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Check the logs above for detailed results" >> $GITHUB_STEP_SUMMARY
+
+  # Separate job for syntax checking (fast fail)
+  syntax-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+      
+      - name: Check Python syntax
+        run: |
+          python -m py_compile erm.py
+          find . -name "*.py" -not -path "./.git/*" -not -path "./__pycache__/*" -not -path "./venv/*" -not -path "./env/*" | xargs -I {} python -m py_compile {}
+          echo "✅ All Python files have valid syntax"
+
+  # Optional: Check code formatting with Black
+  format-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+      
+      - name: Install Black
+        run: pip install black
+      
+      - name: Check code formatting
+        run: |
+          black --check --diff . || echo "⚠️ Code formatting issues found. Run 'black .' to fix."
+        continue-on-error: true

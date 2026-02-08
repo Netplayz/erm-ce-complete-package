@@ -1,0 +1,67 @@
+[flake8]
+# Flake8 configuration for ERM-CE Bot
+
+# Maximum line length
+max-line-length = 127
+
+# Maximum complexity
+max-complexity = 10
+
+# Exclude directories
+exclude =
+    .git,
+    __pycache__,
+    venv,
+    env,
+    .venv,
+    .pytest_cache,
+    .github,
+    build,
+    dist,
+    *.egg-info,
+    .tox,
+    .mypy_cache
+
+# Ignore specific errors
+ignore =
+    # E203: Whitespace before ':' (conflicts with Black)
+    E203,
+    # W503: Line break before binary operator (conflicts with Black)
+    W503,
+    # E501: Line too long (handled by max-line-length)
+    # E402: Module level import not at top of file (sometimes needed)
+    E402,
+
+# Select specific error codes to check
+select =
+    # pycodestyle errors
+    E,
+    # pycodestyle warnings  
+    W,
+    # pyflakes
+    F,
+    # flake8-bugbear
+    B,
+    # flake8-comprehensions
+    C,
+
+# Per-file ignores
+per-file-ignores =
+    # Ignore unused imports in __init__.py files
+    __init__.py:F401,
+    # Ignore complexity in test files
+    test_*.py:C901,
+    # Ignore line length in helpers.py (has long mock definitions)
+    helpers.py:E501,
+
+# Show source code for errors
+show-source = True
+
+# Show statistics at end
+statistics = True
+
+# Count errors
+count = True
+
+# Enable color output (if terminal supports it)
+# color = auto
