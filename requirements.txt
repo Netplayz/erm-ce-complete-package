@@ -6,7 +6,7 @@ uvicorn~=0.30.6
 # Database & Models
 motor~=3.6.0
 pymongo~=4.16.0
-pydantic~=2.8.2
+pydantic~=2.12.5
 gspread~=5.10.0
 gspread_asyncio
 
