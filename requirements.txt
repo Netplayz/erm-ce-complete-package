@@ -1,6 +1,6 @@
 # Core Frameworks
 git+https://github.com/Rapptz/discord.py
-fastapi~=0.112.2
+fastapi~=0.128.5
 uvicorn~=0.30.6
 
 # Database & Models
